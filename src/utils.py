@@ -2,6 +2,7 @@ import logging
 import re
 from typing import List
 from src.constants import LOG_FILE_PATH
+from src.constants import TEXT_CHUNK_SIZE
 
 def setup_logging() -> None:
     """
@@ -45,7 +46,7 @@ class TextProcessor:
         return cleaned_text
 
     @staticmethod
-    def chunk_text(text: str, chunk_size: int, overlap: int = 100) -> List[str]:
+    def chunk_text(text: str, overlap: int = 100) -> List[str]:
         """
         Splits text into chunks with a specified overlap.
 
@@ -58,11 +59,11 @@ class TextProcessor:
             List[str]: A list of text chunks.
         """
         # Clean the text before chunking
-        text = TextProcessor.clean_text(text)
         logging.info("Text prepared for chunking.")
 
         # Tokenize the text into words
         tokens = text.split(" ")
+        chunk_size = int(TEXT_CHUNK_SIZE)
 
         chunks = []
         start = 0

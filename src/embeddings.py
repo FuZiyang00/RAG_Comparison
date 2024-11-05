@@ -11,30 +11,34 @@ from src.utils import setup_logging
 setup_logging()  
 logger = logging.getLogger(__name__)
 
+class SentenceEmbeddings:
+    
+    def __init__(self, chunks: List[str]):
+        self.chunks = chunks
+        
+    @staticmethod
+    @st.cache_resource(show_spinner=False) # Cache the model to avoid loading it multiple times 
+    def get_embedding_model() -> SentenceTransformer:
+        """
+        Loads and caches the embedding model.
 
-@st.cache_resource(show_spinner=False)
-def get_embedding_model() -> SentenceTransformer:
-    """
-    Loads and caches the embedding model.
+        Returns:
+            SentenceTransformer: The loaded embedding model.
+        """
+        logger.info(f"Loading embedding model from path: {EMBEDDING_MODEL_PATH}")
+        return SentenceTransformer(EMBEDDING_MODEL_PATH)
 
-    Returns:
-        SentenceTransformer: The loaded embedding model.
-    """
-    logger.info(f"Loading embedding model from path: {EMBEDDING_MODEL_PATH}")
-    return SentenceTransformer(EMBEDDING_MODEL_PATH)
+    def generate_embeddings(self) -> List[np.ndarray[Any, Any]]:
+        """
+        Generates embeddings for a list of text chunks.
 
+        Args:
+            chunks (List[str]): List of text chunks.
 
-def generate_embeddings(chunks: List[str]) -> List[np.ndarray[Any, Any]]:
-    """
-    Generates embeddings for a list of text chunks.
-
-    Args:
-        chunks (List[str]): List of text chunks.
-
-    Returns:
-        List[np.ndarray[Any, Any]]: List of embeddings as numpy arrays for each chunk.
-    """
-    model = get_embedding_model()
-    embeddings = [np.array(model.encode(chunk)) for chunk in chunks]
-    logger.info(f"Generated embeddings for {len(chunks)} text chunks.")
-    return embeddings
+        Returns:
+            List[np.ndarray[Any, Any]]: List of embeddings as numpy arrays for each chunk.
+        """
+        model = SentenceEmbeddings.get_embedding_model()
+        embeddings = [np.array(model.encode(chunk)) for chunk in self.chunks]
+        logger.info(f"Generated embeddings for {len(self.chunks)} text chunks.")
+        return embeddings

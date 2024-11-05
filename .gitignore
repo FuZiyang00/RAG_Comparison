@@ -5,3 +5,13 @@ __pycache__/
 
 # Environments
 RAGvenv/
+
+# Jupyter Notebook
+*.ipynb_checkpoints
+*.ipynb 
+
+# Documents folder 
+documents/
+
+# application logs folder 
+logs/
