@@ -3,6 +3,8 @@ EMBEDDING_MODEL_PATH = "microsoft/mpnet-base"  # choose a model HuggingFace
 ASSYMETRIC_EMBEDDING = False 
 EMBEDDING_DIMENSION = 768  
 TEXT_CHUNK_SIZE = 300  
+OLLAMA_MODEL_NAME = "llama3.2:1b"  
+
 
 
 ####################################################################################################
