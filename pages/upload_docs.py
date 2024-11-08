@@ -1,19 +1,15 @@
 import logging
 import os
-import time
 
 import streamlit as st
 from PyPDF2 import PdfReader
 
-from src.constants import OPENSEARCH_INDEX, TEXT_CHUNK_SIZE
-from app.css import uploading_style
-
-from src.constants import OPENSEARCH_INDEX, TEXT_CHUNK_SIZE
+from src.constants import OPENSEARCH_INDEX
 from src.embeddings import SentenceEmbeddings
-from src.ingestion import Document_Ingestion
 from src.opensearch import OpenSearchRetriever
-from src.utils import TextProcessor, setup_logging
+from src.utils import setup_logging
 
+from app.css import uploading_style
 from app.functions import (
     Existing_docs,
     Upload_docs,
