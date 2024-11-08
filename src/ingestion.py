@@ -42,9 +42,10 @@ class Document_Ingestion:
             client (OpenSearch): OpenSearch client instance.
         """
         index_body = Document_Ingestion.load_index_config()
+        client = self.client
 
-        if not self.client.indices.exists(index=OPENSEARCH_INDEX):
-            response = self.client.indices.create(index=OPENSEARCH_INDEX, body=index_body)
+        if not client.indices.exists(index=OPENSEARCH_INDEX):
+            response = client.indices.create(index=OPENSEARCH_INDEX, body=index_body)
             logger.info(f"Created index {OPENSEARCH_INDEX}: {response}")
         else:
             logger.info(f"Index {OPENSEARCH_INDEX} already exists.")

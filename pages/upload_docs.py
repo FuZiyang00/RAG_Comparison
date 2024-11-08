@@ -6,7 +6,7 @@ import streamlit as st
 from PyPDF2 import PdfReader
 
 from src.constants import OPENSEARCH_INDEX, TEXT_CHUNK_SIZE
-from css import uploading_style
+from app.css import uploading_style
 
 from src.constants import OPENSEARCH_INDEX, TEXT_CHUNK_SIZE
 from src.embeddings import SentenceEmbeddings
@@ -14,7 +14,7 @@ from src.ingestion import Document_Ingestion
 from src.opensearch import OpenSearchRetriever
 from src.utils import TextProcessor, setup_logging
 
-from functions import (
+from app.functions import (
     Existing_docs,
     Upload_docs,
     documents_displayer,
@@ -43,12 +43,15 @@ def render_upload_page() -> None:
     """
 
     st.title("Upload Documents")
-
+    embedding_model = None
     if "embedding_models_loaded" not in st.session_state:
         with st.spinner("Loading models for document processing..."):
             embedding_model = SentenceEmbeddings.get_embedding_model()
             st.session_state["embedding_models_loaded"] = True
         logger.info("Embedding models loaded.")
+    
+    else:
+        embedding_model = SentenceEmbeddings.get_embedding_model()  
     
     # Initialize OpenSearch client
     with st.spinner("Connecting to OpenSearch..."):
@@ -89,7 +92,7 @@ def render_upload_page() -> None:
     if st.session_state["documents"]:
         st.markdown("### Uploaded Documents")
         with st.expander("Manage Uploaded Documents", expanded=True):
-            documents_displayer
+            documents_displayer(open_search_client)
 
 
 

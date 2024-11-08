@@ -12,6 +12,7 @@ RAGvenv/
 
 # Documents folder 
 documents/
+uploaded_files/
 
 # application logs folder 
 logs/

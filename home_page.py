@@ -131,6 +131,7 @@ def display_sidebar_content() -> None:
         """,
         unsafe_allow_html=True,
     )
+
     logger.info("Displayed sidebar content.")
 
 

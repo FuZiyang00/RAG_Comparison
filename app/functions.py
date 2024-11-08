@@ -41,10 +41,8 @@ def Existing_docs(client: OpenSearchRetriever, index_name: str) -> list:
     """
 
     # Ensure the index exists
-    Document_Ingestion.create_index(client)
-
-    # Initialize or clear the documents list in session state
-    st.session_state["documents"] = []
+    indexer = Document_Ingestion(client)
+    indexer.create_index()
 
     # Query OpenSearch to get the list of unique document names
     query = {
@@ -54,6 +52,9 @@ def Existing_docs(client: OpenSearchRetriever, index_name: str) -> list:
     response = client.search(index=index_name, body=query)
     buckets = response["aggregations"]["unique_docs"]["buckets"]
     document_names = [bucket["key"] for bucket in buckets]
+    if not document_names:
+        logger.info("No documents found in OpenSearch.")
+        
     logger.info("Retrieved document names from OpenSearch.")
 
     return document_names

@@ -1,5 +1,5 @@
 
-EMBEDDING_MODEL_PATH = "microsoft/mpnet-base"  # choose a model HuggingFace
+EMBEDDING_MODEL_PATH = 'paraphrase-MiniLM-L6-v2' # choose a model HuggingFace
 ASSYMETRIC_EMBEDDING = False 
 EMBEDDING_DIMENSION = 768  
 TEXT_CHUNK_SIZE = 300  
