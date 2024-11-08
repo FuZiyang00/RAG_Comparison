@@ -12,10 +12,13 @@ logger = logging.getLogger(__name__)
 
 class OpenSearchRetriever:
 
-    def __init__(self, plain_query, query_embedding):
+    def __init__(self, plain_query: str, 
+                 query_embedding, 
+                 client: OpenSearch):
+        
         self.plain_query = plain_query
         self.query_embedding = query_embedding
-        self.client = OpenSearchRetriever.get_opensearch_client()
+        self.client = client
 
 
     @staticmethod

@@ -28,7 +28,7 @@ class SentenceEmbeddings:
         logger.info(f"Loading embedding model from path: {EMBEDDING_MODEL_PATH}")
         return SentenceTransformer(EMBEDDING_MODEL_PATH)
 
-    def generate_embeddings(self) -> List[np.ndarray[Any, Any]]:
+    def generate_embeddings(self, embedding_model: SentenceTransformer) -> List[np.ndarray[Any, Any]]:
         """
         Generates embeddings for a list of text chunks.
 
@@ -38,7 +38,7 @@ class SentenceEmbeddings:
         Returns:
             List[np.ndarray[Any, Any]]: List of embeddings as numpy arrays for each chunk.
         """
-        model = SentenceEmbeddings.get_embedding_model()
-        embeddings = [np.array(model.encode(chunk)) for chunk in self.chunks]
+
+        embeddings = [np.array(embedding_model.encode(chunk)) for chunk in self.chunks]
         logger.info(f"Generated embeddings for {len(self.chunks)} text chunks.")
         return embeddings

@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Tuple
 from opensearchpy import OpenSearch, helpers
 
 from src.constants import ASSYMETRIC_EMBEDDING, EMBEDDING_DIMENSION, OPENSEARCH_INDEX
-from src.opensearch import get_opensearch_client
 from src.utils import setup_logging
 
 # Initialize logger
@@ -15,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class Document_Ingestion:
 
-    def __init__(self):
-        self.client = get_opensearch_client()
+    def __init__(self, client: OpenSearch) -> None:
+        self.client = client
 
     @staticmethod
     def load_index_config() -> Dict[str, Any]:
