@@ -78,21 +78,6 @@ def apply_custom_css() -> None:
     logger.info("Applied custom CSS styling.")
 
 
-# Function to display logo or placeholder
-def display_logo(logo_path: str) -> None:
-    """Displays the logo in the sidebar or a placeholder if the logo is not found.
-
-    Args:
-        logo_path (str): The file path for the logo image.
-    """
-    if os.path.exists(logo_path):
-        st.sidebar.image(logo_path, width=220)
-        logger.info("Logo displayed.")
-    else:
-        st.sidebar.markdown("### Logo Placeholder")
-        logger.warning("Logo not found, displaying placeholder.")
-
-
 # Function to display main content
 def display_main_content() -> None:
     """Displays the main welcome content on the page."""
@@ -138,6 +123,5 @@ def display_sidebar_content() -> None:
 # Main execution
 if __name__ == "__main__":
     apply_custom_css()
-    display_logo("images/jamwithai_logo.png")
     display_sidebar_content()
     display_main_content()

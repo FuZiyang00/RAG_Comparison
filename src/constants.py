@@ -1,9 +1,12 @@
 
-EMBEDDING_MODEL_PATH = 'paraphrase-MiniLM-L6-v2' # choose a model HuggingFace
-ASSYMETRIC_EMBEDDING = False 
-EMBEDDING_DIMENSION = 768  
+EMBEDDING_MODEL_PATH = 'all-mpnet-base-v2' # Choose a model that produces embeddings that match the EMBEDDING_DIMENSION
+EMBEDDING_DIMENSION = 768 
+ASSYMETRIC_EMBEDDING = False  
 TEXT_CHUNK_SIZE = 300  
-OLLAMA_MODEL_NAME = "llama3.2:1b"  
+OLLAMA_MODEL_NAME = "llama3.2:1b" 
+HYBRID_SEARCH = True
+K_RESULTS = 5
+TEMPERATURE = 0.5
 
 
 

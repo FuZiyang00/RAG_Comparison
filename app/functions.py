@@ -4,12 +4,13 @@ import streamlit as st
 from opensearchpy import OpenSearch, helpers
 import time
 
-from src.constants import OPENSEARCH_INDEX, TEXT_CHUNK_SIZE
 from src.embeddings import SentenceEmbeddings
 from src.ingestion import Document_Ingestion
 from src.opensearch import OpenSearchRetriever
 from src.ocr import OCR
 from src.utils import TextProcessor, setup_logging
+from src.llm_engine import LLMEngine
+
 import logging
 
 setup_logging()  
@@ -58,6 +59,7 @@ def Existing_docs(client: OpenSearchRetriever, index_name: str) -> list:
     logger.info("Retrieved document names from OpenSearch.")
 
     return document_names
+
 
 def Upload_docs(uploaded_files:list, 
                 document_names: list,
@@ -142,3 +144,77 @@ def documents_displayer(client: OpenSearch) -> None:
                 st.rerun()
 
                 st.write(f"Deleted document: {response}")
+
+
+def inference_sidebar_slider(**default_values):
+    """
+    Creates a sidebar slider for: 
+    - Hybrid search toggle
+    - Number of fetch from OpenSearch
+    - Temperature for sampling
+    """
+
+    if "use_hybrid_search" not in st.session_state:
+        st.session_state["use_hybrid_search"] = default_values["hybrid_search"]
+    if "num_results" not in st.session_state:
+        st.session_state["num_results"] = default_values["num_results"]
+    if "temperature" not in st.session_state:
+        st.session_state["temperature"] = default_values["temperature"]
+    
+    # Sidebar settings for hybrid search toggle, result count, and temperature
+    st.session_state["use_hybrid_search"] = st.sidebar.checkbox(
+        "Enable RAG mode", value=st.session_state["use_hybrid_search"]
+    )
+    st.session_state["num_results"] = st.sidebar.number_input(
+        "Number of Results in Context Window",
+        min_value=1,
+        max_value=10,
+        value=st.session_state["num_results"],
+        step=1,
+    )
+    st.session_state["temperature"] = st.sidebar.slider(
+        "Response Temperature",
+        min_value=0.0,
+        max_value=1.0,
+        value=st.session_state["temperature"],
+        step=0.1,
+    )
+
+
+def llm_chat(prompt, chat_setting, embedding_model, client) -> None: 
+
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    st.session_state["chat_history"].append({"role": "user", "content": prompt})
+    logger.info("User input received.")
+
+    # Generate response from assistant
+    with st.chat_message("assistant"):
+        with st.spinner("Generating response..."):
+            response_placeholder = st.empty()
+            response_text = ""
+
+            response_stream = LLMEngine.generate_response_streaming(prompt, 
+                                                                    chat_setting,
+                                                                    embedding_model,
+                                                                    client,
+                                                                    chat_history=st.session_state["chat_history"])
+
+        # Stream response content if response_stream is valid
+        if response_stream is not None:
+            for chunk in response_stream:
+                if (
+                    isinstance(chunk, dict)
+                    and "message" in chunk
+                    and "content" in chunk["message"]
+                ):
+                    response_text += chunk["message"]["content"]
+                    response_placeholder.markdown(response_text + "▌")
+                else:
+                    logger.error("Unexpected chunk format in response stream.")
+        
+        response_placeholder.markdown(response_text)
+        st.session_state["chat_history"].append(
+            {"role": "assistant", "content": response_text}
+        )
+        logger.info("Response generated and displayed.")

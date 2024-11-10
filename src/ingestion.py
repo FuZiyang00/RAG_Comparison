@@ -34,7 +34,7 @@ class Document_Ingestion:
         return config if isinstance(config, dict) else {}
 
 
-    def create_index(self) -> None:
+    def create_index(self, index=OPENSEARCH_INDEX) -> None:
         """
         Creates an index in OpenSearch using settings and mappings from the configuration file.
 
@@ -44,11 +44,11 @@ class Document_Ingestion:
         index_body = Document_Ingestion.load_index_config()
         client = self.client
 
-        if not client.indices.exists(index=OPENSEARCH_INDEX):
+        if not client.indices.exists(index=index):
             response = client.indices.create(index=OPENSEARCH_INDEX, body=index_body)
-            logger.info(f"Created index {OPENSEARCH_INDEX}: {response}")
+            logger.info(f"Created index {index}: {response}")
         else:
-            logger.info(f"Index {OPENSEARCH_INDEX} already exists.")
+            logger.info(f"Index {index} already exists.")
 
 
     def delete_index(self) -> None:

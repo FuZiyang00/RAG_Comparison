@@ -5,7 +5,7 @@ import numpy as np
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 
-from src.constants import EMBEDDING_MODEL_PATH
+from src.constants import EMBEDDING_MODEL_PATH, EMBEDDING_DIMENSION
 from src.utils import setup_logging
 
 setup_logging()  
