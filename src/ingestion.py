@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Tuple
 
 from opensearchpy import OpenSearch, helpers
 
-from src.constants import ASSYMETRIC_EMBEDDING, EMBEDDING_DIMENSION, OPENSEARCH_INDEX
-from src.utils import setup_logging
+from .constants import ASSYMETRIC_EMBEDDING, EMBEDDING_DIMENSION, OPENSEARCH_INDEX
+from .utils import setup_logging
 
 # Initialize logger
 setup_logging()

@@ -3,8 +3,8 @@ from typing import Any, Dict, List
 
 from opensearchpy import OpenSearch
 
-from src.constants import OPENSEARCH_HOST, OPENSEARCH_INDEX, OPENSEARCH_PORT
-from src.utils import setup_logging
+from .constants import OPENSEARCH_HOST, OPENSEARCH_INDEX, OPENSEARCH_PORT
+from .utils import setup_logging
 
 # Initialize logger
 setup_logging()

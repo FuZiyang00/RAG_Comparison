@@ -1,8 +1,8 @@
 import logging
 import re
 from typing import List
-from src.constants import LOG_FILE_PATH
-from src.constants import TEXT_CHUNK_SIZE
+from .constants import LOG_FILE_PATH
+from .constants import TEXT_CHUNK_SIZE
 
 def setup_logging() -> None:
     """

@@ -4,11 +4,11 @@ from typing import Dict, Iterable, List, Optional
 import ollama
 import streamlit as st
 
-from src.constants import ASSYMETRIC_EMBEDDING, OLLAMA_MODEL_NAME
-from src.embeddings import SentenceEmbeddings
+from .constants import ASSYMETRIC_EMBEDDING, OLLAMA_MODEL_NAME
+from .embeddings import SentenceEmbeddings
 from opensearchpy import OpenSearch
-from src.opensearch import OpenSearchRetriever
-from src.utils import setup_logging
+from .opensearch import OpenSearchRetriever
+from .utils import setup_logging
 
 # Initialize logger
 setup_logging()

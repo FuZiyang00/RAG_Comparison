@@ -5,8 +5,8 @@ import numpy as np
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 
-from src.constants import EMBEDDING_MODEL_PATH, EMBEDDING_DIMENSION
-from src.utils import setup_logging
+from .constants import EMBEDDING_MODEL_PATH, EMBEDDING_DIMENSION
+from .utils import setup_logging
 
 setup_logging()  
 logger = logging.getLogger(__name__)

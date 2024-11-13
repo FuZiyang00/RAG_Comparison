@@ -1,7 +1,7 @@
 import io
 import logging
 from typing import Optional
-from src.utils import setup_logging
+from .utils import setup_logging
 
 import pytesseract
 from PIL import Image
