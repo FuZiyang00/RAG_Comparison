@@ -17,3 +17,4 @@ prove/
 
 # application logs folder 
 logs/
+.env
