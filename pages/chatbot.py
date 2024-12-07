@@ -1,5 +1,7 @@
 import logging
 import os
+from openai import OpenAI
+from dotenv import load_dotenv
 import streamlit as st
 
 from src.constants import (
@@ -13,6 +15,7 @@ from src.ingestion import Document_Ingestion
 from src.opensearch import OpenSearchRetriever
 from src.embeddings import SentenceEmbeddings
 from src.llm_engine import LLMEngine
+from src.constants import MODEL_NAME
 
 from app.css import chatbot_style
 from app.functions import (inference_sidebar_slider,
@@ -21,6 +24,15 @@ from app.functions import (inference_sidebar_slider,
 # Initialize logger
 setup_logging()  # Configures logging for the application
 logger = logging.getLogger(__name__)
+
+load_dotenv()
+# Retrieve the API key from the environment
+api_key = os.getenv("GRAPHRAG_API_KEY")
+
+# Initialize the client
+llm_client = OpenAI(api_key=api_key)
+llm_model = MODEL_NAME
+llm_components = {"client": llm_client, "model": llm_model}
 
 
 # Set page configuration
@@ -50,11 +62,9 @@ def render_chatbot_page() -> None:
     if "embedding_models_loaded" not in st.session_state:
         with st.spinner("Loading Embedding and Ollama models for Hybrid Search..."):
             embedding_model = SentenceEmbeddings.get_embedding_model()  
-            LLMEngine.ensure_model_pulled()
             st.session_state["embedding_models_loaded"] = True
     else: 
         embedding_model = SentenceEmbeddings.get_embedding_model()
-        LLMEngine.ensure_model_pulled()
 
     logger.info("Embedding model loaded.")
 
@@ -72,9 +82,11 @@ def render_chatbot_page() -> None:
                       st.session_state["num_results"],
                       st.session_state["temperature"]]
     
+    
 
     if prompt := st.chat_input("Type your message here..."):
-        llm_chat(prompt, model_settings, embedding_model, open_search_client)
+        webapp_input = {"query": prompt, "chat_setting": model_settings}
+        llm_chat(webapp_input, embedding_model, open_search_client, llm_components)
 
 
 

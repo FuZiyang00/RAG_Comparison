@@ -1,14 +1,12 @@
 import logging
 from typing import Dict, Iterable, List, Optional
 
-import ollama
-import streamlit as st
-
-from .constants import ASSYMETRIC_EMBEDDING, OLLAMA_MODEL_NAME
+from .constants import ASSYMETRIC_EMBEDDING
 from .embeddings import SentenceEmbeddings
 from opensearchpy import OpenSearch
 from .opensearch import OpenSearchRetriever
 from .utils import setup_logging
+from openai import OpenAI
 
 # Initialize logger
 setup_logging()
@@ -17,63 +15,31 @@ logger = logging.getLogger(__name__)
 
 class LLMEngine:
 
-    @staticmethod
-    @st.cache_resource(show_spinner=False)
-    def ensure_model_pulled(model = OLLAMA_MODEL_NAME) -> bool:
+    def __init__(self, client: OpenAI, model: str):
+        self.client = client
+        self.model = model
+        
+    def run_chat_streaming(self, prompt: str, temp: float): 
         """
-        Ensures that the specified model is pulled and available locally.
-
-        Args:
-            model (str): The name of the model to ensure is available.
-
-        Returns:
-            bool: True if the model is available or successfully pulled, False if an error occurs.
-        """
-        try:
-            available_models = ollama.list()
-            if model not in available_models:
-                logger.info(f"Model {model} not found locally. Pulling the model...")
-                ollama.pull(model)
-                logger.info(f"Model {model} has been pulled and is now available locally.")
-            else:
-                logger.info(f"Model {model} is already available locally.")
-        except ollama.ResponseError as e:
-            logger.error(f"Error checking or pulling model: {e.error}")
-            return False
-        return True
-    
-    @staticmethod
-    def run_llama_streaming(prompt: str, temperature: float, model = OLLAMA_MODEL_NAME) -> Optional[Iterable[str]]: 
-        """
-        Uses Ollama's Python library to run the LLaMA model with streaming enabled.
-
         Args:
             prompt (str): The prompt to send to the model.
             temperature (float): The response generation temperature.
 
-        Returns:
-            Optional[Iterable[str]]: A generator yielding response chunks as strings, or None if an error occurs.
         """
-        if not model:
-            logger.error("No model specified.")
+    
+        try:
+            response_stream = self.client.chat.completions.create(
+                model= self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature= temp,
+                stream = True
+            )
+        
+        except Exception as e:
+            logger.error(f"Error during streaming: {e}")
             return None
         
-        else: 
-            try:
-                # Now attempt to stream the response from the model
-                logger.info("Streaming response from LLaMA model.")
-                stream = ollama.chat(
-                    model= model,
-                    messages=[{"role": "user", "content": prompt}],
-                    stream=True,
-                    options={"temperature": temperature},
-                )
-
-            except ollama.ResponseError as e:
-                logger.error(f"Error during streaming: {e.error}")
-                return None
-
-        return stream
+        return response_stream
     
     @staticmethod
     def prompt_template(query: str, context: str, history: List[Dict[str, str]]) -> str:
@@ -157,9 +123,6 @@ class LLMEngine:
             for i, result in enumerate(search_results):
                 context += f"Document {i}:\n{result['_source']['text']}\n\n"
 
-        # Generate prompt using the prompt_template function
-        temperature = chat_setting[2]
         prompt = LLMEngine.prompt_template(query, context, history)
-        stream = LLMEngine.run_llama_streaming(prompt, temperature)
 
-        return stream
+        return prompt

@@ -9,6 +9,12 @@ from src.embeddings import SentenceEmbeddings
 from src.opensearch import OpenSearchRetriever
 from src.utils import setup_logging
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+llama_key = os.getenv('LLAMA_KEY')
+
 from app.css import uploading_style
 from app.functions import (
     Existing_docs,
@@ -81,7 +87,8 @@ def render_upload_page() -> None:
     if uploaded_files:
         with st.spinner("Uploading and processing documents. Please wait..."):
             Upload_docs(uploaded_files, document_names, 
-                        open_search_client, embedding_model)
+                        open_search_client, llama_key, 
+                        embedding_model)
         st.success("Files uploaded and indexed successfully!")
 
     # Displaying documents

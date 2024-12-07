@@ -63,7 +63,8 @@ def Existing_docs(client: OpenSearchRetriever, index_name: str) -> list:
 
 def Upload_docs(uploaded_files:list, 
                 document_names: list,
-                client: OpenSearch, 
+                client: OpenSearch,
+                api_key: str, 
                 embedding_model) -> None:
     
     for uploaded_file in uploaded_files:
@@ -73,7 +74,7 @@ def Upload_docs(uploaded_files:list,
         
         file_path = save_uploaded_file(uploaded_file)
         reader = OCR(file_path)
-        text = reader.extract_text_from_pdf()
+        text = reader.extract_text_from_pdf(api_key)
         
         # cleaning and chunking 
         cleaner = TextProcessor(text)
@@ -181,40 +182,49 @@ def inference_sidebar_slider(**default_values):
     )
 
 
-def llm_chat(prompt, chat_setting, embedding_model, client) -> None: 
+def llm_chat(webapp_input, embedding_model, client, llm_components) -> None: 
+
+    query = webapp_input['query']
+    chat_setting = webapp_input['chat_setting']
+    temperature = chat_setting[2]
 
     with st.chat_message("user"):
-        st.markdown(prompt)
-    st.session_state["chat_history"].append({"role": "user", "content": prompt})
+        st.markdown(query)
+    st.session_state["chat_history"].append({"role": "user", "content": query})
     logger.info("User input received.")
 
     # Generate response from assistant
     with st.chat_message("assistant"):
         with st.spinner("Generating response..."):
+
             response_placeholder = st.empty()
             response_text = ""
 
-            response_stream = LLMEngine.generate_response_streaming(prompt, 
-                                                                    chat_setting,
-                                                                    embedding_model,
-                                                                    client,
-                                                                    chat_history=st.session_state["chat_history"])
+            llm_client = llm_components['client']
+            llm_model = llm_components['model']
 
-        # Stream response content if response_stream is valid
-        if response_stream is not None:
-            for chunk in response_stream:
-                if (
-                    isinstance(chunk, dict)
-                    and "message" in chunk
-                    and "content" in chunk["message"]
-                ):
-                    response_text += chunk["message"]["content"]
-                    response_placeholder.markdown(response_text + "▌")
-                else:
-                    logger.error("Unexpected chunk format in response stream.")
-        
-        response_placeholder.markdown(response_text)
-        st.session_state["chat_history"].append(
-            {"role": "assistant", "content": response_text}
-        )
-        logger.info("Response generated and displayed.")
+            llm_engine = LLMEngine(llm_client, llm_model)
+            prompt = LLMEngine.generate_response_streaming(query, chat_setting,
+                                                           embedding_model, client,
+                                                           chat_history=st.session_state["chat_history"])
+            
+            response_stream = llm_engine.run_chat_streaming(prompt, temperature)
+
+            # Stream response content if response_stream is valid
+            if response_stream is not None:
+                for chunk in response_stream:
+                    if chunk.choices[0].delta.content is not None:
+                        print(chunk.choices[0].delta.content, end="")
+                        response_text += chunk.choices[0].delta.content
+                        response_placeholder.markdown(response_text + "▌")
+                    
+                    else:
+                        logger.error("Unexpected chunk format in response stream.")
+            
+            response_placeholder.markdown(response_text)
+            st.session_state["chat_history"].append(
+                {"role": "assistant", "content": response_text}
+            )
+            logger.info("Response generated and displayed.")
+
+                        
