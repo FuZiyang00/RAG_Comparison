@@ -1,0 +1,6 @@
+myenv/
+notebooks/
+.env*
+# Ignore all JSON files
+*.json
+__pycache__/
